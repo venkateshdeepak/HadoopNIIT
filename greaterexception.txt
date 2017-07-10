@@ -1,0 +1,46 @@
+
+package greaterexception;
+
+
+import java.util.Scanner;
+class Greaterexception extends Exception
+{
+    Greaterexception()
+    {
+        System.out.println("invalid");
+    }
+}
+public class Number
+{
+    public static void main(String[]args)
+    {
+    int no;
+    Scanner sc=new Scanner (System.in);
+    for(int i=0;i<10;i++)
+    {
+        System.out.println("enter the number");
+        no=sc.nextInt();
+    if(no>=10)   
+    {
+    try
+    {
+    throw new Greaterexception();
+    }
+    catch(Greaterexception e)
+    { 
+        System.out.println(e);
+        break;
+    }
+    }
+   else
+    {
+        System.out.println("valid");
+    }
+    }
+    
+}
+}
+            
+    
+    
+
