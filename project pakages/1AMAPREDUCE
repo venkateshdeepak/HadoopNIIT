@@ -1,0 +1,85 @@
+1A). import java.io.IOException;
+
+import org.apache.hadoop.conf. Configuration;
+import org.apache.hadoop.fs. FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io. DoubleWritable;
+import org.apache.hadoop.io. IntWritable;
+import org.apache.hadoop.io. LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce. Job;
+import org.apache.hadoop.mapreduce. Mapper;
+import org.apache.hadoop.mapreduce. Reducer;
+import org.apache.hadoop.mapreduce. Reducer.Context;
+import org.apache.hadoop.mapreduce. lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce. lib.output.FileOutputFormat;
+
+public class firsta {
+
+public static int max=0;
+public static class MyMapper extends Mapper<LongWritable,Text, Text, IntWritable> {
+       
+       
+        protected void map(LongWritable key, Text value, Context context) throws java.io.IOException, InterruptedException
+        {
+            String row = value.toString();
+            String[] tokens = row.split(",");
+            String casestatus = tokens[1];
+            String socname = tokens[3];
+            String jobtitle = tokens[4];
+           
+            if(casestatus.contains("CERTIFIED"))
+            {
+            if(jobtitle.contains("DATA SCIENTIST"))              
+            {
+            context.write(new Text(socname),new IntWritable(1));
+            }
+    } 
+    }
+       
+    }
+       
+public  class Question1aReducer extends Reducer <Text,LongWritable,Text,LongWritable>
+{        LongWritable SUM=new LongWritable(0); int i=0;
+            String[] years={"2011","2012","2013","2014","2015","2016"};
+    long [] arr=new long[6];
+    public void reduce(Text key,Iterable<LongWritable> values ,Context context) throws IOException, InterruptedException
+    {
+        long sum=0;
+        for(LongWritable val:values)
+        sum+=val.get();
+        arr[i++]=sum;
+    }
+    
+public void cleanup(Context context) throws IOException, InterruptedException
+{
+for (int i=0;i<6;i++)    
+    if (i==0)
+    context.write(new Text(years[i]), new LongWritable(0));
+    else
+        context.write(new Text(years[i]),new LongWritable((arr[i]-arr[i-1])*100/arr[i-1]));
+ 
+}
+    
+}
+   
+  public static void main(String[] args)
+                  throws IOException, ClassNotFoundException, InterruptedException {
+   
+    Configuration conf = new Configuration();
+    conf.set("mapreduce.output. textoutputformat.separator", ",");
+    Job job = Job.getInstance(conf);
+    job.setJarByClass(firsta.class) ;
+    job.setJobName("Final 1a");
+    job.setMapperClass(MyMapper. class);
+    job.setReducerClass(Question1aReducer. class);
+    job.setNumReduceTasks(1);
+    job.setMapOutputKeyClass(Text. class);
+    job.setMapOutputValueClass( IntWritable.class);
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass( IntWritable.class);
+    FileInputFormat.addInputPath( job, new Path(args[0]));
+    FileOutputFormat. setOutputPath(job, new Path(args[1]));
+    System.exit(job. waitForCompletion(true) ? 0 : 1);
+  }
+}
